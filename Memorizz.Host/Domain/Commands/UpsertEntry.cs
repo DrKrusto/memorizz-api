@@ -1,6 +1,7 @@
-﻿using MediatR;
+﻿using FluentValidation;
+using MediatR;
 using Memorizz.Host.Domain.Behaviors;
-using Memorizz.Host.Domain.Services;
+using Memorizz.Host.Domain.Extensions;
 using Memorizz.Host.Persistence;
 using Memorizz.Host.Persistence.Models;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +10,15 @@ namespace Memorizz.Host.Domain.Commands;
 
 public record UpsertEntry(string UserId, DateOnly Date, string Content) : DomainRequest<Entry>
 {
+    internal class Validator : AbstractValidator<UpsertEntry>
+    {
+        public Validator()
+        {
+            RuleFor(x => x.UserId).ValidateGuid();
+            RuleFor(x => x.Content).NotEmpty().WithMessage("Content must be set.");
+        }
+    }
+    
     internal class Handler : IRequestHandler<UpsertEntry, Entry>
     {
         private readonly AppDbContext dbContext;

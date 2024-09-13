@@ -1,8 +1,6 @@
-using System.Reflection;
 using Memorizz.Host.Persistence;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models;
 using Memorizz.Host.Domain.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,42 +17,16 @@ builder.Services.AddIdentityApiEndpoints<IdentityUser>()
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options =>
-{
-    options.IncludeXmlComments(Assembly.GetExecutingAssembly());
-    options.SwaggerDoc("v1", new() { Title = "Memorizz API", Version = "v1" });
-    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        Description = "JWT Authorization header using the Bearer scheme",
-        Name = "Authorization",
-        In = ParameterLocation.Header,
-        Type = SecuritySchemeType.ApiKey,
-        Scheme = "Bearer"
-    });
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            Array.Empty<string>()
-        }
-    });
-});
-
-builder.Services.AddHttpContextAccessor();
 builder.Services.AddMediatR(configuration =>
 {
     configuration.RegisterServicesFromAssembly(typeof(Program).Assembly);
 });
 
-builder.Services.AddServices();
-builder.Services.AddBehaviors();
+builder.Services.AddCustomSwaggerGen()
+    .AddServices()
+    .AddGlobalExceptionHandler()
+    .AddFluentValidation()
+    .AddRequestContextBehavior();
 
 #endregion
 
@@ -76,6 +48,7 @@ app.MapControllers();
 app.MapGroup("/identity")
     .MapIdentityApi<IdentityUser>()
     .WithTags("Identity");
+app.UseExceptionHandler();
 
 #endregion
 
