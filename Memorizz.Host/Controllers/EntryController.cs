@@ -24,7 +24,7 @@ public class EntryController(ISender mediator, IUserResolver userResolver) : Con
     /// <param name="input"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    [HttpGet("{userId}"), Authorize]
+    [HttpGet("all/{userId}"), Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<IEnumerable<EntryView>>> GetEntries([FromRoute] string userId, [FromQuery] GetEntriesInput input, CancellationToken cancellationToken)
@@ -32,6 +32,22 @@ public class EntryController(ISender mediator, IUserResolver userResolver) : Con
         var command = new GetEntriesQuery(userId, input.From, input.To);
         var response = await mediator.Send(command, cancellationToken);
         return response.ToActionResult(x => x.Select(e => EntryView.From(e, userResolver)));
+    }
+    
+    /// <summary>
+    /// Get a specific journal entry
+    /// </summary>
+    /// <param name="entryId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpGet("{entryId}"), Authorize]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<EntryView>> GetEntry([FromRoute] string entryId, CancellationToken cancellationToken)
+    {
+        var command = new GetEntryQuery(entryId);
+        var response = await mediator.Send(command, cancellationToken);
+        return response.ToActionResult(x => EntryView.From(x, userResolver));
     }
     
     /// <summary>
