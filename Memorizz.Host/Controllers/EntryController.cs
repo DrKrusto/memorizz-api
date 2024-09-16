@@ -31,7 +31,7 @@ public class EntryController(ISender mediator, IUserResolver userResolver) : Con
     {
         var command = new GetEntriesQuery(userId, input.From, input.To);
         var response = await mediator.Send(command, cancellationToken);
-        return Ok(response.Select(e => EntryView.From(e, userResolver)).OrderBy(x => x.Date));
+        return response.ToActionResult(x => x.Select(e => EntryView.From(e, userResolver)));
     }
     
     /// <summary>
@@ -46,6 +46,6 @@ public class EntryController(ISender mediator, IUserResolver userResolver) : Con
     {
         var command = new UpsertEntry(input.UserId, input.Date, input.Content);
         var response = await mediator.Send(command, cancellationToken);
-        return Ok(EntryView.From(response, userResolver));
+        return response.ToActionResult(x => EntryView.From(x, userResolver));
     }
 }

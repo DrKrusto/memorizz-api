@@ -3,9 +3,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Memorizz.Host.Domain.Configuration;
 
+// Configuration of the builder
 var builder = WebApplication.CreateBuilder(args);
-
-#region Add services to the container
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
@@ -13,6 +12,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 });
 
 builder.Services.AddIdentityApiEndpoints<IdentityUser>()
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>();
 
 builder.Services.AddControllers();
@@ -26,13 +26,11 @@ builder.Services.AddCustomSwaggerGen()
     .AddServices()
     .AddGlobalExceptionHandler()
     .AddFluentValidation()
-    .AddRequestContextBehavior();
+    .AddRequestContextBehavior()
+    .AddAccessRights();
 
-#endregion
-
+// Building the app
 var app = builder.Build();
-
-#region Add middleware to the pipeline
 
 if (app.Environment.IsDevelopment())
 {
@@ -49,7 +47,5 @@ app.MapGroup("/identity")
     .MapIdentityApi<IdentityUser>()
     .WithTags("Identity");
 app.UseExceptionHandler();
-
-#endregion
 
 app.Run();
