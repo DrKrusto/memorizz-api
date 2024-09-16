@@ -36,6 +36,8 @@ public record UpsertEntry(string UserId, DateOnly Date, string Content) : Domain
 
         public async Task<RequestResult<Entry>> Handle(UpsertEntry request, CancellationToken cancellationToken)
         {
+            int statusCode = 200;
+            
             logger.LogInformation("Create entry for user {UserId} on date {Date}", request.UserId, request.Date);
             var parsedId = Guid.Parse(request.UserId);
             var entry = await dbContext.Entries.FirstOrDefaultAsync(e => e.UserId == parsedId && e.EntryDate == request.Date, cancellationToken);
@@ -49,6 +51,7 @@ public record UpsertEntry(string UserId, DateOnly Date, string Content) : Domain
                     Content = request.Content
                 };
                 await dbContext.Entries.AddAsync(entry, cancellationToken);
+                statusCode = 201;
             }
             else
             {
@@ -69,7 +72,7 @@ public record UpsertEntry(string UserId, DateOnly Date, string Content) : Domain
             logger.LogInformation("Save changes");
             await dbContext.SaveChangesAsync(cancellationToken);
             
-            return RequestResult<Entry>.Success(entry);
+            return RequestResult<Entry>.Success(entry, statusCode);
         }
     }
 }
