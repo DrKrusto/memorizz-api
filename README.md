@@ -10,6 +10,7 @@ Memorizz is a web application built with ASP.NET Core and Entity Framework Core.
 - Custom middleware for exception handling
 - Integration with MediatR for CQRS pattern
 - Fluent validation for request validation
+- Access rights implementation with custom config on different entities
 - Swagger for API documentation
 
 ## Getting Started
