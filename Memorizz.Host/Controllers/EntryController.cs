@@ -27,11 +27,11 @@ public class EntryController(ISender mediator, IUserResolver userResolver) : Con
     [HttpGet("all/{userId}"), Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<IEnumerable<EntryView>>> GetEntries([FromRoute] string userId, [FromQuery] GetEntriesInput input, CancellationToken cancellationToken)
+    public async Task<ActionResult<EntryListView>> GetEntries([FromRoute] string userId, [FromQuery] GetEntriesInput input, CancellationToken cancellationToken)
     {
         var command = new GetEntriesQuery(userId, input.From, input.To);
         var response = await mediator.Send(command, cancellationToken);
-        return response.ToActionResult(x => x.Select(e => EntryView.From(e, userResolver)));
+        return response.ToActionResult(x => EntryListView.From(x, userResolver, userId));
     }
     
     /// <summary>

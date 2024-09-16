@@ -3,7 +3,7 @@
 namespace Memorizz.Host.Controllers.Views;
 
 /// <summary>
-/// User view
+/// Represents a user
 /// </summary>
 public record UserView(string Id, string Email)
 {
