@@ -12,6 +12,7 @@ public record EntryView(Guid Id, UserView? User, string Content, DateOnly Date)
     /// Create an entry view from an entry
     /// </summary>
     /// <param name="entry"></param>
+    /// <param name="userResolver"></param>
     /// <returns></returns>
     public static EntryView From(Entry entry, IUserResolver userResolver)
     {
